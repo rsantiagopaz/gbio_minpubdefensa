@@ -1,0 +1,57 @@
+	var btnListados = new qx.ui.menu.Button("Listados");
+    var mnuListados = new qx.ui.menu.Menu();
+    btnListados.setMenu(mnuListados);
+    mnuVer.add(btnListados);
+    
+    var btnEmpleados = new qx.ui.menu.Button("Empleados");
+    btnEmpleados.addListener("execute", function(e){
+        if (pageEmpleados==null) {
+            pageEmpleados = new gbio.comp.empleados.pageEmpleados();
+            pageEmpleados.addListenerOnce("close", function(e){
+                pageEmpleados = null;
+            });
+            tabviewMain.add(pageEmpleados);                
+        } 
+        tabviewMain.setSelection([pageEmpleados])
+    }, this);
+    mnuVer.add(btnEmpleados);
+    
+    var btnAsignaTurnos = new qx.ui.menu.Button("Asignaciones");
+    btnAsignaTurnos.addListener("execute", function(e){
+        if (pageAsignaciones==null) {
+            pageAsignaciones = new gbio.comp.empleados.pageAsignaciones();
+            pageAsignaciones.addListenerOnce("close", function(e){
+                pageAsignaciones = null;
+            });
+            tabviewMain.add(pageAsignaciones);                
+        } 
+        tabviewMain.setSelection([pageAsignaciones])
+    }, this);
+    mnuVer.add(btnAsignaTurnos);
+    
+    var btnLisDiario = new qx.ui.menu.Button("Diario");
+    btnLisDiario.addListener("execute", function (e) {
+        var win = new gbio.comp.listados.windowDiario();
+        win.setModal(true);
+        win.center();
+        win.open();
+    }, this);
+    mnuListados.add(btnLisDiario);
+    
+    var btnLisMensual = new qx.ui.menu.Button("Mensual");
+    btnLisMensual.addListener("execute", function (e) {
+        var win = new gbio.comp.listados.windowMensual();
+        win.setModal(true);
+        win.center();
+        win.open();
+    }, this);
+    mnuListados.add(btnLisMensual);
+    
+    var btnLisMensualDetallado = new qx.ui.menu.Button("Mensual Detallado");
+    btnLisMensualDetallado.addListener("execute", function (e) {
+        var win = new gbio.comp.listados.windowMensualDetallado();
+        win.setModal(true);
+        win.center();
+        win.open();
+    }, this);
+    mnuListados.add(btnLisMensualDetallado);
