@@ -213,7 +213,7 @@ class class_Empleados extends class_Base
   	
   	function functionAux(&$row, $col) {
   		$row->enabled = (bool) $row->enabled;
-  		$row->privilege = (bool) $row->privilege;
+  		$row->privilege = (int) $row->privilege;
   		
   		$row->apenom = (empty($row->apellido) && empty($row->nombre)) ? "" : $row->apellido . ", " . $row->nombre;
   	};
@@ -221,9 +221,9 @@ class class_Empleados extends class_Base
   	$opciones = new stdClass;
   	$opciones->salida = functionAux;
   	
-  	$where = ((count($p->id_lugar_trabajo) > 0) ? " WHERE id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")" : " WHERE FALSE");
+  	$where = ((count($p->id_lugar_trabajo) > 0) ? " WHERE id_lugar_trabajo IS NULL OR id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")" : " WHERE FALSE");
   	
-  	$sql = "SELECT * FROM empleado" . $where . " ORDER BY apellido, nombre, name";
+  	$sql = "SELECT * FROM empleado " . $where . " ORDER BY apellido, nombre, name";
   	
 	return $this->toJson($sql, $opciones);
   }
@@ -262,6 +262,39 @@ class class_Empleados extends class_Base
 		$this->sql_query($sql);
 		$resultado = $p->id_empleado;
 	}
+  	
+	return $resultado;
+  }
+  
+  
+  public function method_alta_modifica_datos_empleado($params, $error) {
+	$p = $params[0];
+  	
+	$resultado = false;
+  	
+	$set = $this->prepararCampos($p, "empleado_datos");
+	
+	$this->mysqli->query("START TRANSACTION");
+  	
+	if ($p->id_empleado=="0") {
+		$sql = "INSERT empleado SET " . $set;
+		$this->mysqli->query($sql);
+		$resultado = $this->mysqli->insert_id;
+  	} else {
+  		if ($p->cambio_lugar_trabajo) {
+			$sql = "DELETE FROM empleado_permiso WHERE id_empleado_turno IN (SELECT id_empleado_turno FROM empleado_turno WHERE id_empleado = " . $p->id_empleado . ")";
+			$this->mysqli->query($sql);
+
+			$sql = "DELETE FROM empleado_turno WHERE id_empleado = " . $p->id_empleado;
+			$this->mysqli->query($sql);
+		}
+		//$sql = "UPDATE empleado SET " . $set . " WHERE id_empleado = " . $p->id_empleado;
+		$sql = "INSERT empleado_datos SET " . $set . " ON DUPLICATE KEY UPDATE " . $set;
+		$this->mysqli->query($sql);
+		$resultado = $p->id_empleado;
+	}
+	
+	$this->mysqli->query("COMMIT");
   	
 	return $resultado;
   }

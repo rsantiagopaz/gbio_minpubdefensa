@@ -125,8 +125,10 @@ qx.Class.define("gbio.Application",
 			callback    : finalCallback
 		});
 		
-		loginWidget._username.setValue("root");
-		loginWidget._password.setValue("root");
+		if (qx.core.Environment.get("qx.debug")) {
+			loginWidget._username.setValue("root");
+			loginWidget._password.setValue("root");
+		}
 		
 		loginWidget._username.getLayoutParent().getLayout().getCellWidget(0, 0).setValue("Usuario:");
 		loginWidget._username.getLayoutParent().getLayout().getCellWidget(1, 0).setValue("Contraseña:");

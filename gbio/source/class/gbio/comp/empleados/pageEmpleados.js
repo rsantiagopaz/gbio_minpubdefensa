@@ -86,9 +86,11 @@ qx.Class.define("gbio.comp.empleados.pageEmpleados",
 	var commandModificar = new qx.ui.command.Command("Enter");
 	commandModificar.addListener("execute", function(){
 		var rowData = tableModelPedido.getRowData(tblPedido.getFocusedRow());
-		var win = new gbio.comp.empleados.windowEmpleado(rowData);
+		var win = new gbio.comp.empleados.windowDatos(rowData);
 		win.addListener("aceptado", function(e){
-			functionActualizar(e.getData());
+			var data = e.getData();
+			
+			functionActualizar(data);
 		});
 		win.setModal(true);
 		application.getRoot().add(win);
@@ -98,11 +100,11 @@ qx.Class.define("gbio.comp.empleados.pageEmpleados",
 	
 	var menutblPedido = new componente.comp.ui.ramon.menu.Menu();
 	var btnNuevoPedido = new qx.ui.menu.Button("Nuevo empleado...", null, commandNuevoPedido);
-	var btnModificar = new qx.ui.menu.Button("Modificar empleado...", null, commandModificar);
+	var btnModificar = new qx.ui.menu.Button("Modificar datos...", null, commandModificar);
 	
 	
-	menutblPedido.add(btnNuevoPedido);
-	menutblPedido.addSeparator();
+	//menutblPedido.add(btnNuevoPedido);
+	//menutblPedido.addSeparator();
 	menutblPedido.add(btnModificar);
 	menutblPedido.memorizar();
 	commandNuevoPedido.setEnabled(false);
@@ -112,7 +114,7 @@ qx.Class.define("gbio.comp.empleados.pageEmpleados",
 	//Tabla
 
 	var tableModelPedido = new qx.ui.table.model.Simple();
-	tableModelPedido.setColumns(["Apellido, Nombre", "Nombre corto", "Legajo"], ["apenom", "name", "enroll_number"]);
+	tableModelPedido.setColumns(["Apellido, Nombre", "DNI", "Nombre corto", "Legajo"], ["apenom", "nro_doc", "name", "enroll_number"]);
 	//tableModelPedido.setColumns(["Fecha", "Fábrica"], ["fecha", "id_fabrica"]);
 	//tableModelPedido.setEditable(true);
 
