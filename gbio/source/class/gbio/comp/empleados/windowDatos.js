@@ -6,7 +6,7 @@ qx.Class.define("gbio.comp.empleados.windowDatos",
 		this.base(arguments);
 		
 		this.set({
-			width: 270,
+			//width: 300,
 			height: 250,
 			showMinimize: false,
 			showMaximize: false
@@ -66,6 +66,7 @@ qx.Mixin.define("my.Mixin",
 	
 	var slbPrivilege = new qx.ui.form.SelectBox();
 	slbPrivilege.setRequired(true);
+	slbPrivilege.setWidth(200);
 	slbPrivilege.add(new qx.ui.form.ListItem("Usuario", null, 0))
 	slbPrivilege.add(new qx.ui.form.ListItem("Enroller", null, 1))
 	slbPrivilege.add(new qx.ui.form.ListItem("Administrador", null, 2))

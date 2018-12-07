@@ -114,7 +114,7 @@ qx.Class.define("gbio.comp.empleados.pageEmpleados",
 	//Tabla
 
 	var tableModelPedido = new qx.ui.table.model.Simple();
-	tableModelPedido.setColumns(["Apellido, Nombre", "DNI", "Nombre corto", "Legajo"], ["apenom", "nro_doc", "name", "enroll_number"]);
+	tableModelPedido.setColumns(["Apellido, Nombre", "DNI", "Nombre corto", "Legajo", "Lugar de trabajo", "Tolerancia"], ["apenom", "nro_doc", "name", "enroll_number", "lugar_trabajo_descrip", "tolerancia_descrip"]);
 	//tableModelPedido.setColumns(["Fecha", "Fábrica"], ["fecha", "id_fabrica"]);
 	//tableModelPedido.setEditable(true);
 

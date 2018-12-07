@@ -649,7 +649,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 		*/
 		
 		(new dialog.Confirm({
-		        "message"   : "Desea eliminar el item seleccionado?",
+		        "message"   : "ATENCIÓN, se perderan los fichajes del empleado seleccionado realizados con el reloj correspondiente.<br/><br/>Desea eliminar el item seleccionado?",
 		        "callback"  : function(e){
 									if (e) {
 										var p = {id_empleado_reloj: tableModelRelojes.getRowData(tblRelojes.getFocusedRow()).id_empleado_reloj};
@@ -697,8 +697,8 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 		var selectionModelRelojes = tblRelojes.getSelectionModel();
 		selectionModelRelojes.addListener("changeSelection", function(e){
 			var bool = (selectionModelRelojes.getSelectedCount() > 0);
-			//btnEliminarReloj.setEnabled(bool);
-			//mnutblRelojes.memorizar([btnEliminarReloj]);
+			btnEliminarReloj.setEnabled(bool);
+			mnutblRelojes.memorizar([btnEliminarReloj]);
 		});
 		
 		tblRelojes.setContextMenu(mnutblRelojes);

@@ -46,13 +46,18 @@ class class_Empleados extends class_Base
   public function method_eliminar_reloj($params, $error) {
 	$p = $params[0];
 	
+	$this->mysqli->query("START TRANSACTION");
+	
 	foreach ($p->id_empleado_reloj as $id_empleado_reloj) {
 		$sql = "DELETE FROM empleado_reloj WHERE id_empleado_reloj=" . $id_empleado_reloj;
-		$this->sql_query($sql);
+		$this->mysqli->query($sql);
+		
+		$sql = "DELETE FROM fichaje WHERE id_empleado_reloj=" . $id_empleado_reloj;
+		$this->mysqli->query($sql);
 	}
-
-	//$sql = "DELETE FROM empleado_permiso WHERE id_empleado_permiso=" . $p->id_empleado_permiso;
-	//$this->sql_query($sql);
+	
+	$this->mysqli->query("COMMIT");
+	
   }
   
   
@@ -221,21 +226,11 @@ class class_Empleados extends class_Base
   	$opciones = new stdClass;
   	$opciones->salida = functionAux;
   	
-  	$where = ((count($p->id_lugar_trabajo) > 0) ? " WHERE id_lugar_trabajo IS NULL OR id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")" : " WHERE FALSE");
+  	$where = ((count($p->id_lugar_trabajo) > 0) ? " WHERE empleado.id_lugar_trabajo IS NULL OR empleado.id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")" : " WHERE FALSE");
   	
-  	$sql = "SELECT * FROM empleado " . $where . " ORDER BY apellido, nombre, name";
+  	$sql = "SELECT empleado.*, lugar_trabajo.descrip AS lugar_trabajo_descrip, tolerancia.descrip AS tolerancia_descrip FROM empleado LEFT JOIN lugar_trabajo USING(id_lugar_trabajo) LEFT JOIN tolerancia USING(id_tolerancia) " . $where . " ORDER BY apellido, nombre, name";
   	
 	return $this->toJson($sql, $opciones);
-  }
-  
-  
-  public function method_leer_empleado($params, $error) {
-  	$p = $params[0];
-  	
-  	$resultado = array();
-
-  	
-	return $resultado;
   }
   
   
@@ -277,9 +272,9 @@ class class_Empleados extends class_Base
 	$this->mysqli->query("START TRANSACTION");
   	
 	if ($p->id_empleado=="0") {
-		$sql = "INSERT empleado SET " . $set;
-		$this->mysqli->query($sql);
-		$resultado = $this->mysqli->insert_id;
+		//$sql = "INSERT empleado SET " . $set;
+		//$this->mysqli->query($sql);
+		//$resultado = $this->mysqli->insert_id;
   	} else {
   		if ($p->cambio_lugar_trabajo) {
 			$sql = "DELETE FROM empleado_permiso WHERE id_empleado_turno IN (SELECT id_empleado_turno FROM empleado_turno WHERE id_empleado = " . $p->id_empleado . ")";
