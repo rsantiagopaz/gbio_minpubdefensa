@@ -190,8 +190,8 @@ class class_Empleados extends class_Base
 	
 	//$where = ((count($p->lugar_trabajo) > 0) ? " WHERE id_lugar_trabajo IN (" . implode(", ", $p->lugar_trabajo) . ")" : " WHERE FALSE");
 	
-	$sql = "SELECT id_empleado, CONCAT(apellido, ', ', nombre) AS apenom, name, enroll_number FROM empleado";
-	$sql.= " WHERE id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")";
+	$sql = "SELECT empleado.id_empleado, CONCAT(empleado.apellido, ', ', empleado.nombre) AS apenom, empleado.name, empleado.enroll_number FROM empleado INNER JOIN tolerancia USING(id_tolerancia)";
+	$sql.= " WHERE empleado.id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")";
 	$sql.= " ORDER BY apenom, name, enroll_number";
 
 	$rs = $this->sql_query($sql);
@@ -283,7 +283,7 @@ class class_Empleados extends class_Base
 			$sql = "DELETE FROM empleado_turno WHERE id_empleado = " . $p->id_empleado;
 			$this->mysqli->query($sql);
 		}
-		//$sql = "UPDATE empleado SET " . $set . " WHERE id_empleado = " . $p->id_empleado;
+
 		$sql = "INSERT empleado_datos SET " . $set . " ON DUPLICATE KEY UPDATE " . $set;
 		$this->mysqli->query($sql);
 		$resultado = $p->id_empleado;

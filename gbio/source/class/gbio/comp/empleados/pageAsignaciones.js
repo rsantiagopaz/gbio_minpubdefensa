@@ -649,7 +649,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 		*/
 		
 		(new dialog.Confirm({
-		        "message"   : "ATENCIÓN, se perderan los fichajes del empleado seleccionado realizados con el reloj correspondiente.<br/><br/>Desea eliminar el item seleccionado?",
+		        "message"   : "ATENCIÓN, se perderan los fichajes del empleado seleccionado guardados localmente realizados desde el reloj correspondiente.<br/><br/>Desea eliminar el item seleccionado?",
 		        "callback"  : function(e){
 									if (e) {
 										var p = {id_empleado_reloj: tableModelRelojes.getRowData(tblRelojes.getFocusedRow()).id_empleado_reloj};

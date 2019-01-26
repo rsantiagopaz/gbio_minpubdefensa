@@ -26,7 +26,7 @@ qx.Class.define("gbio.comp.empleados.windowDatos",
 			vtUbicacion.closeNode(encontrado);
 		}
 		*/
-		slbPrivilege.focus();
+		txtPassword.focus();
 	});
 	
 	
@@ -64,24 +64,27 @@ qx.Mixin.define("my.Mixin",
 	var form = new qx.ui.form.Form();
 	
 	
+	var txtPassword = new qx.ui.form.PasswordField();
+	form.add(txtPassword, "Contraseña", null, "password");
+	
+	
 	var slbPrivilege = new qx.ui.form.SelectBox();
 	slbPrivilege.setRequired(true);
 	slbPrivilege.setWidth(200);
-	slbPrivilege.add(new qx.ui.form.ListItem("Usuario", null, 0))
-	slbPrivilege.add(new qx.ui.form.ListItem("Enroller", null, 1))
-	slbPrivilege.add(new qx.ui.form.ListItem("Administrador", null, 2))
-	slbPrivilege.add(new qx.ui.form.ListItem("S.Administrador", null, 3))
+	slbPrivilege.add(new qx.ui.form.ListItem("Usuario", null, 0));
+	slbPrivilege.add(new qx.ui.form.ListItem("Enroller", null, 1));
+	slbPrivilege.add(new qx.ui.form.ListItem("Administrador", null, 2));
+	slbPrivilege.add(new qx.ui.form.ListItem("S.Administrador", null, 3));
 	form.add(slbPrivilege, "Privilegio", null, "privilege");
 	
-	var chkEnabled = new qx.ui.form.CheckBox();
-	form.add(chkEnabled, "Habilitado", null, "enabled");
-	
+
 	
 	
 	var slbId_tolerancia = new qx.ui.form.SelectBox();
 	
 	var slbLugarTrabajo = new qx.ui.form.SelectBox();
 	slbLugarTrabajo.setRequired(true);
+	slbLugarTrabajo.setEnabled(false);
 	slbLugarTrabajo.addListener("changeSelection", function(e){
 		var data = e.getData();
 		var p = {id_lugar_trabajo: [data[0].getModel()]};

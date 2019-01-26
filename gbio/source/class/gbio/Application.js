@@ -307,7 +307,7 @@ qx.Class.define("gbio.Application",
 		win.center();
 		win.open();
 	}, this);
-	mnuParametros.add(btnParLugarTrabajo);
+	//mnuParametros.add(btnParLugarTrabajo);
 	
 	var btnUsuarios = new qx.ui.menu.Button("Usuarios");
 	btnUsuarios.addListener("execute", function(e){

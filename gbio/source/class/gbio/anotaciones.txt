@@ -1,4 +1,4 @@
 
-CREATE VIEW empleado_view AS SELECT id_empleado, enroll_number, name, nro_doc, apellido, nombre from empleado_ori
+CREATE VIEW vista_empleado AS SELECT id_empleado, enroll_number, name, enabled, nro_doc, apellido, nombre, id_lugar_trabajo FROM empleado_ori
 
-CREATE VIEW empleado AS SELECT * FROM empleado_view LEFT JOIN empleado_datos USING(id_empleado)
+CREATE VIEW empleado AS SELECT * FROM vista_empleado LEFT JOIN empleado_datos USING(id_empleado);

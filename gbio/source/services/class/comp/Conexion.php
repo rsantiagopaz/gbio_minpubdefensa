@@ -9,9 +9,9 @@ $base = "gbio_minpubdefensa";
 
 
 /*
-$servidor = "10.0.0.3";
-$usuario = "gbio";
-$password = "3sp3r4nz4iea!";
+$servidor = "";
+$usuario = "";
+$password = "";
 $base = "gbio_minpubdefensa";
 */
 

@@ -89,18 +89,28 @@ class class_Relojes extends class_Base
 				$sql.= ", privilege=" . $xml['privilege'];
 				$sql.= ", enabled=" . (($xml['enabled']=="True") ? "TRUE" : "FALSE");
 				
-				$this->mysqli->query($sql);
+				//$this->mysqli->query($sql);
 				$id_empleado = $this->mysqli->insert_id;
 			} else {
 				$rowEmpleado = $rsEmpleado->fetch_object();
 				$id_empleado = $rowEmpleado->id_empleado;
 				
-				$sql = "UPDATE empleado SET";
-				$sql.= " enroll_number=" . $xml['enroll_number'];
-				$sql.= ", name='" . $xml['name'] . "'";
-				$sql.= ", password='" . $xml['password'] . "'";
-				$sql.= ", privilege=" . $xml['privilege'];
-				$sql.= ", enabled=" . (($xml['enabled']=="True") ? "TRUE" : "FALSE");
+				$sql = "UPDATE vista_empleado SET";
+				//$sql.= " enroll_number=" . $xml['enroll_number'];
+				$sql.= " name='" . $xml['name'] . "'";
+				//$sql.= ", password='" . $xml['password'] . "'";
+				//$sql.= ", privilege=" . $xml['privilege'];
+				//$sql.= ", enabled=" . (($xml['enabled']=="True") ? "TRUE" : "FALSE");
+				$sql.= " WHERE id_empleado=" . $id_empleado;
+				
+				//$this->mysqli->query($sql);
+				
+				$sql = "UPDATE empleado_datos SET";
+				//$sql.= " enroll_number=" . $xml['enroll_number'];
+				//$sql.= " name='" . $xml['name'] . "'";
+				$sql.= " password='" . $xml['password'] . "'";
+				$sql.= ", privilege='" . $xml['privilege'] . "'";
+				//$sql.= ", enabled=" . (($xml['enabled']=="True") ? "TRUE" : "FALSE");
 				$sql.= " WHERE id_empleado=" . $id_empleado;
 				
 				$this->mysqli->query($sql);
