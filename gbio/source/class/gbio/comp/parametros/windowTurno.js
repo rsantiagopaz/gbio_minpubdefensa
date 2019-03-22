@@ -105,7 +105,7 @@ qx.Class.define("gbio.comp.parametros.windowTurno",
 	});
 	form.add(slbTipo, "Tipo", null, "tipo", null, {grupo: 1, item: {row: 2, column: 1, colSpan: 3}});
 	
-	var txtCant_horas = new qx.ui.form.Spinner(0, 0, 100);
+	var txtCant_horas = new qx.ui.form.Spinner(0, 0, 2000);
 	txtCant_horas.setEnabled(false);
 	txtCant_horas.setNumberFormat(application.numberformatEntero);
 	txtCant_horas.getChildControl("upbutton").setVisibility("excluded");

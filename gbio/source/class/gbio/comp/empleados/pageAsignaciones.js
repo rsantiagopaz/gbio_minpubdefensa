@@ -18,7 +18,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 	var formatDate = new qx.util.format.DateFormat("d/M/y");
 	
 	
-	var functionActualizar = function(id_lugar_trabajo) {
+	var functionActualizar = function(id_lugar_trabajo, texto) {
 		var root = application.getRoot();
 		root.block();
 		
@@ -30,6 +30,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 		
 		var p = {};
 		p.id_lugar_trabajo = id_lugar_trabajo;
+		p.texto = texto;
 		
 		var rpc = new componente.comp.io.ramon.rpc.Rpc("services/", "comp.Empleados");
 		rpc.callAsync(function(resultado, error, id) {
@@ -772,6 +773,35 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 	controllerFormRelojes.createModel(true);
 	
 	
+	
+	
+	
+	
+	
+	var txtFiltro = new qx.ui.form.TextField("");
+	txtFiltro.setWidth(200);
+	txtFiltro.setLiveUpdate(true);
+	txtFiltro.addListener("changeValue", function(e){
+		var data = e.getData();
+		
+		if (data.length == 0) {
+			tblEmpleados.resetSelection();
+			tblEmpleados.setFocusedCell();
+			
+			functionActualizar([slbLugarTrabajo.getModelSelection().getItem(0)]);
+		} else {
+			data = data.trim();
+			if (data.length >= 3) {
+				tblEmpleados.resetSelection();
+				tblEmpleados.setFocusedCell();
+				
+				functionActualizar([slbLugarTrabajo.getModelSelection().getItem(0)], data);
+			}
+		}
+	});
+	this.add(txtFiltro, {left: 220, top: 7});
+	
+	
 	var slbLugarTrabajo = new qx.ui.form.SelectBox();
 	slbLugarTrabajo.addListener("changeSelection", function(e){
 		var data = e.getData();
@@ -809,34 +839,40 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 		tblEmpleados.resetSelection();
 		tblEmpleados.setFocusedCell();
 		
-		functionActualizar([data[0].getModel()]);
+		//functionActualizar([data[0].getModel()]);
+		
+		var aux = txtFiltro.getValue().trim();
+		if (aux.length >= 3) functionActualizar([data[0].getModel()], aux); else functionActualizar([data[0].getModel()]);
 	});
 	for (var x in application.usuario.lugar_trabajo) {
 		slbLugarTrabajo.add(new qx.ui.form.ListItem(application.usuario.lugar_trabajo[x].descrip, null, application.usuario.lugar_trabajo[x].id_lugar_trabajo));
 	}
 	this.add(slbLugarTrabajo, {left: 70, top: 5});
 	
+
+	
 	
 	
 	slbLugarTrabajo.setTabIndex(1);
-	tblEmpleados.setTabIndex(2);
+	txtFiltro.setTabIndex(2);
+	tblEmpleados.setTabIndex(3);
 
-	tblRelojes.setTabIndex(3);
-	tblTurnos.setTabIndex(4);
-	tblPermisos.setTabIndex(5);
+	tblRelojes.setTabIndex(4);
+	tblTurnos.setTabIndex(5);
+	tblPermisos.setTabIndex(6);
 	
-	lstRelojes.setTabIndex(6);
-	btnAgregar3.setTabIndex(7);
+	lstRelojes.setTabIndex(7);
+	btnAgregar3.setTabIndex(8);
 
-	slbTurno1.setTabIndex(8);
-	txtDesde.setTabIndex(9);
-	txtHasta.setTabIndex(10);
-	btnAgregar1.setTabIndex(11);
+	slbTurno1.setTabIndex(9);
+	txtDesde.setTabIndex(10);
+	txtHasta.setTabIndex(11);
+	btnAgregar1.setTabIndex(12);
 	
-	slbPermiso.setTabIndex(12);
-	slbTurno2.setTabIndex(13);
-	txtFecha.setTabIndex(14);
-	btnAgregar2.setTabIndex(15);
+	slbPermiso.setTabIndex(13);
+	slbTurno2.setTabIndex(14);
+	txtFecha.setTabIndex(15);
+	btnAgregar2.setTabIndex(16);
 	
 	
 	

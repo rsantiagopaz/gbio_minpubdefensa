@@ -7,7 +7,7 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 
 	this.set({
 		width: 400,
-		height: 500,
+		height: 650,
 		allowMaximize: false,
 		showMinimize: false,
 		showMaximize: false
@@ -22,6 +22,11 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 	
 	var application = qx.core.Init.getApplication();
 	var modelForm = null;
+	
+	
+	var image = new qx.ui.basic.Image("gbio/imagenGbio_modificada.png");
+	this.add(image, {left: 0, top: 0});
+	
 		
 		
 	var form = new qx.ui.form.Form();
@@ -53,36 +58,36 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 	//form.add(chkEntrada_extras, "entrada_extras", null, "entrada_extras");
 	form.add(chkEntrada_extras, "Hs.extras ent.", null, "entrada_extras", null, {grupo: 2, tabIndex: 6, item: {row: 2, column: 1, colSpan: 5}});
 	
-	var txtE_fichada = new qx.ui.form.Spinner(0, 0, 100);
+	var txtE_fichada = new qx.ui.form.Spinner(0, 0, 2000);
 	//form.add(txtE_fichada, "e_fichada", null, "e_fichada");
 	form.add(txtE_fichada, "Ent.normal", null, "e_fichada", null, {grupo: 2, item: {row: 3, column: 1, colSpan: 5}});
 	
-	var txtE_tolerable = new qx.ui.form.Spinner(0, 0, 100);
+	var txtE_tolerable = new qx.ui.form.Spinner(0, 0, 2000);
 	//form.add(txtE_tolerable, "e_tolerable", null, "e_tolerable");
 	form.add(txtE_tolerable, "Ent.tolerable", null, "e_tolerable", null, {grupo: 2, item: {row: 4, column: 1, colSpan: 5}});
 	
-	var txtE_tardanza = new qx.ui.form.Spinner(0, 0, 100);
+	var txtE_tardanza = new qx.ui.form.Spinner(0, 0, 2000);
 	form.add(txtE_tardanza, "Ent.tardanza", null, "e_tardanza", null, {grupo: 2, item: {row: 5, column: 1, colSpan: 5}});
 	
-	var txt30minutos = new qx.ui.form.Spinner(0, 0, 100);
+	var txt30minutos = new qx.ui.form.Spinner(0, 0, 2000);
 	form.add(txt30minutos, "30 minutos", null, "e_30minutos", null, {grupo: 2, item: {row: 6, column: 1, colSpan: 5}});
 	
-	var txt60minutos = new qx.ui.form.Spinner(0, 0, 100);
+	var txt60minutos = new qx.ui.form.Spinner(0, 0, 2000);
 	form.add(txt60minutos, "60 minutos", null, "e_60minutos", null, {grupo: 2, item: {row: 7, column: 1, colSpan: 5}});
 	
 	var chkSalida_extras = new qx.ui.form.CheckBox();
 	//form.add(chkSalida_extras, "salida_extras", null, "salida_extras");
 	form.add(chkSalida_extras, "Hs.extras sal.", null, "salida_extras", null, {grupo: 2, item: {row: 2, column: 8, colSpan: 5}});
 	
-	var txtS_fichada = new qx.ui.form.Spinner(0, 0, 100);
+	var txtS_fichada = new qx.ui.form.Spinner(0, 0, 2000);
 	//form.add(txtS_fichada, "s_fichada", null, "s_fichada");
 	form.add(txtS_fichada, "Sal.normal", null, "s_fichada", null, {grupo: 2, item: {row: 3, column: 8, colSpan: 5}});
 	
-	var txtS_tolerable = new qx.ui.form.Spinner(0, 0, 100);
+	var txtS_tolerable = new qx.ui.form.Spinner(0, 0, 2000);
 	//form.add(txtS_tolerable, "s_tolerable", null, "s_tolerable");
 	form.add(txtS_tolerable, "Sal.tolerable", null, "s_tolerable", null, {grupo: 2, item: {row: 4, column: 8, colSpan: 5}});
 	
-	var txtS_abandono = new qx.ui.form.Spinner(0, 0, 100);
+	var txtS_abandono = new qx.ui.form.Spinner(0, 0, 2000);
 	//form.add(txtS_abandono, "s_abandono", null, "s_abandono");
 	form.add(txtS_abandono, "Abandono", null, "s_abandono", null, {grupo: 2, item: {row: 5, column: 8, colSpan: 5}});
 
@@ -95,12 +100,12 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 	
 	
 	var chkEntrada = new qx.ui.form.CheckBox();
-	form.add(chkEntrada, "Control entrada", null, "control_entrada", null, {grupo: 3, tabIndex: 15, item: {row: 1, column: 1, colSpan: 5}});
+	form.add(chkEntrada, "Control entrada", null, "control_entrada", null, {grupo: 3, tabIndex: 17, item: {row: 1, column: 1, colSpan: 5}});
 	
 	var chkSalida = new qx.ui.form.CheckBox();
 	form.add(chkSalida, "Control salida", null, "control_salida", null, {grupo: 3, item: {row: 1, column: 8, colSpan: 1}});
 	
-	var txtTotalMinutos = new qx.ui.form.Spinner(0, 0, 1000);
+	var txtTotalMinutos = new qx.ui.form.Spinner(0, 0, 2000);
 	txtTotalMinutos.setNumberFormat(application.numberformatEntero);
 	txtTotalMinutos.getChildControl("upbutton").setVisibility("excluded");
 	txtTotalMinutos.getChildControl("downbutton").setVisibility("excluded");
@@ -124,7 +129,7 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 	//var formView = new qx.ui.form.renderer.Double(form);
 	var formView = new componente.comp.ui.ramon.abstractrenderer.Grid(form, 13, 13, 1);
 	
-	this.add(formView, {left: 0, top: 0})
+	this.add(formView, {left: 130, top: 130})
 	
 	var controllerForm = new qx.data.controller.Form(null, form);
 	
@@ -132,14 +137,14 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 	
 	var formView2 = new componente.comp.ui.ramon.abstractrenderer.Grid(form, 13, 13, 2);
 	
-	this.add(formView2, {left: 0, top: 80});
+	this.add(formView2, {left: 130, top: 210});
 	
 	
 	
 
 	var gpb = new qx.ui.groupbox.GroupBox("Tiempo mensual de permisos");
 	gpb.setLayout(new qx.ui.layout.Basic());
-	this.add(gpb, {left: 0, top: 280});
+	this.add(gpb, {left: 130, top: 410});
 	
 	
 	
@@ -217,10 +222,13 @@ qx.Class.define("gbio.comp.parametros.windowTolerancia",
 		this.destroy();
 	}, this);
 	
-	this.add(btnAceptar, {left: 100, bottom: 0});
-	this.add(btnCancelar, {left: 250, bottom: 0});
+	this.add(btnAceptar, {left: "30%", bottom: 0});
+	this.add(btnCancelar, {right: "30%", bottom: 0});
 
-		
+	
+	btnAceptar.setTabIndex(30);
+	btnCancelar.setTabIndex(31);
+	
 		
 	},
 	members : 

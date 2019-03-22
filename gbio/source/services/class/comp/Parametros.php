@@ -4,6 +4,19 @@ require("Base.php");
 
 class class_Parametros extends class_Base
 {
+	
+	
+  public function method_leer_listado($params, $error) {
+  	$p = $params[0];
+  	
+  	$opciones = new stdClass;
+  	$opciones->width = "int";
+  	$opciones->height = "int";
+  	
+  	$sql = "SELECT * FROM listado";
+  	
+	return $this->toJson($sql, $opciones);
+  }
   
   
   public function method_escribir_contrasena($params, $error) {

@@ -192,6 +192,21 @@ class class_Empleados extends class_Base
 	
 	$sql = "SELECT empleado.id_empleado, CONCAT(empleado.apellido, ', ', empleado.nombre) AS apenom, empleado.name, empleado.enroll_number FROM empleado INNER JOIN tolerancia USING(id_tolerancia)";
 	$sql.= " WHERE empleado.id_lugar_trabajo IN (" . implode(", ", $p->id_lugar_trabajo) . ")";
+	
+	if (isset($p->texto)) {
+		$aux = explode(" ", $p->texto);
+		
+		foreach ($aux as $item) {
+			if ($item != "") {
+				if (is_numeric($item)) {
+					$sql.= " AND empleado.enroll_number LIKE '" . $item . "%'";
+				} else {
+					$sql.= " AND (empleado.apellido LIKE '%" . $item . "%' OR empleado.nombre LIKE '%" . $item . "%')";
+				}
+			}
+		}
+	}
+	
 	$sql.= " ORDER BY apenom, name, enroll_number";
 
 	$rs = $this->sql_query($sql);

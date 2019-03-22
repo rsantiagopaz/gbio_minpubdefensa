@@ -216,7 +216,7 @@ qx.Class.define("gbio.Application",
 	mnuVer.add(btnAsignaTurnos);
 	
 	
-	var btnListados = new qx.ui.menu.Button("Listados");
+	var btnListados = new qx.ui.menu.Button("Listados 1");
     var mnuListados = new qx.ui.menu.Menu();
     btnListados.setMenu(mnuListados);
     mnuVer.add(btnListados);
@@ -248,15 +248,47 @@ qx.Class.define("gbio.Application",
     }, this);
     mnuListados.add(btnLisMensualDetallado);
     
+
+    
+    
+    
     
     var btnLisPermisos = new qx.ui.menu.Button("Tiempo de Permiso");
     btnLisPermisos.addListener("execute", function (e) {
-        var win = new gbio.comp.listados.windowListado();
+        var win = new gbio.comp.listados.windowTiempoDePermiso();
         win.setModal(true);
         win.center();
         win.open();
     });
     mnuListados.add(btnLisPermisos);
+    
+    
+
+    
+	var btnListado = new qx.ui.menu.Button("Listados 2");
+    var mnuListado = new qx.ui.menu.Menu();
+    btnListado.setMenu(mnuListado);
+    mnuVer.add(btnListado);
+    
+	var rpc = new qx.io.remote.Rpc("services/", "comp.Parametros");
+	try {
+		var resultado = rpc.callSync("leer_listado");
+	} catch (ex) {
+		alert("Sync exception: " + ex);
+	}
+    
+	for (var x in resultado) {
+		var aux = new qx.ui.menu.Button(resultado[x].caption + "...");
+		aux.setUserData("datos", resultado[x]);
+		aux.addListener("execute", function(e){
+			var win = new gbio.comp.listados.windowListado(this.getUserData("datos"));
+			win.setModal(true);
+			doc.add(win);
+			win.center();
+			win.open();
+		});
+		mnuListado.add(aux);
+	}
 	
 	
 	var btnParRelojes = new qx.ui.menu.Button("Relojes");
