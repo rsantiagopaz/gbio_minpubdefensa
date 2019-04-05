@@ -193,11 +193,9 @@ qx.Class.define("gbio.comp.listados.windowTiempoDePermiso",
 	dtfHasta.setMaxWidth(100);
 	
 	var aux = new Date;
+	dtfHasta.setValue(aux);
 	aux.setDate(1);
 	dtfDesde.setValue(aux);
-	aux.setMonth(aux.getMonth() + 1);
-	aux.setDate(aux.getDate() - 1);
-	dtfHasta.setValue(aux);
 	
 	
 	
