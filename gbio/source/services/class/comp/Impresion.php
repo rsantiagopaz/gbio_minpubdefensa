@@ -68,60 +68,88 @@ case "permisos" : {
 	
 	
 	
+	$sql = "SELECT *";
+	$sql.= " FROM empleado";
+	$sql.= " WHERE TRUE";
+	
+	if (isset($_REQUEST['id_empleado'])) {
+		$sql.= " AND id_empleado=" . $_REQUEST['id_empleado'];
+	}
+	
+	$sql.= " ORDER BY apellido, nombre, name";
+	
+	$rsEmpleado = $mysqli->query($sql);
+	while ($rowEmpleado = $rsEmpleado->fetch_object()) {
+		
+		if (empty($rowEmpleado->id_tolerancia)) continue;
+		
 
-	$sql = "SELECT * FROM turno ORDER BY descrip";
-	$rsTurno = $mysqli->query($sql);
-	while ($rowTurno = $rsTurno->fetch_object()) {
+
+		$sql = "SELECT * FROM tolerancia WHERE id_tolerancia=" . $rowEmpleado->id_tolerancia;
+		$rsTolerancia = $mysqli->query($sql);
+		$rowTolerancia = $rsTolerancia->fetch_object();
 		
-		$rowTurno->lu = (bool) $rowTurno->lu;
-		$rowTurno->ma = (bool) $rowTurno->ma;
-		$rowTurno->mi = (bool) $rowTurno->mi;
-		$rowTurno->ju = (bool) $rowTurno->ju;
-		$rowTurno->vi = (bool) $rowTurno->vi;
-		$rowTurno->sa = (bool) $rowTurno->sa;
-		$rowTurno->do = (bool) $rowTurno->do;
-		$rowTurno->activo = (bool) $rowTurno->activo;
-		
-		if (! $rowTurno->activo) continue;
+		$rowTolerancia->control_entrada = (bool) $rowTolerancia->control_entrada;
+		$rowTolerancia->control_salida = (bool) $rowTolerancia->control_salida;
+		$rowTolerancia->total_minutos = (int) $rowTolerancia->total_minutos;
+		$rowTolerancia->limite_tardanzas = (int) $rowTolerancia->limite_tardanzas;		
 		
 		
+		?>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td colspan="7"><hr/></td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>Empleado</td><td colspan="6"><?php echo $rowEmpleado->name; ?></td></tr>
+		<tr><td>Tolerancia</td><td colspan="6"><?php echo $rowTolerancia->descrip; ?></td></tr>
+		<?php
 		
-		$sql = "SELECT empleado.*, empleado_turno.desde, empleado_turno.hasta";
-		$sql.= " FROM empleado INNER JOIN empleado_turno USING(id_empleado)";
-		$sql.= " WHERE id_turno=" . $rowTurno->id_turno;
 		
-		if (isset($_REQUEST['id_empleado'])) {
-			$sql.= " AND id_empleado=" . $_REQUEST['id_empleado'];
-		}
-		
-		$sql.= " ORDER BY apellido, nombre, name";
-		
-		$rsEmpleado = $mysqli->query($sql);
-		
-		while ($rowEmpleado = $rsEmpleado->fetch_object()) {
+	
+		$sql = "SELECT turno.*, empleado_turno.desde, empleado_turno.hasta FROM turno INNER JOIN empleado_turno USING(id_turno) WHERE empleado_turno.id_empleado=" . $rowEmpleado->id_empleado . " ORDER BY descrip, id_empleado_turno";
+		$rsTurno = $mysqli->query($sql);
+		while ($rowTurno = $rsTurno->fetch_object()) {
 			
-			if (empty($rowEmpleado->id_tolerancia)) continue;
+			$rowTurno->lu = (bool) $rowTurno->lu;
+			$rowTurno->ma = (bool) $rowTurno->ma;
+			$rowTurno->mi = (bool) $rowTurno->mi;
+			$rowTurno->ju = (bool) $rowTurno->ju;
+			$rowTurno->vi = (bool) $rowTurno->vi;
+			$rowTurno->sa = (bool) $rowTurno->sa;
+			$rowTurno->do = (bool) $rowTurno->do;
+			$rowTurno->activo = (bool) $rowTurno->activo;
+			
+			if (! $rowTurno->activo) continue;
 			
 			
-			if (is_null($rowEmpleado->desde)) {
+
+			
+				
+			if (is_null($rowTurno->desde)) {
 				$desdeAux = $desde;
 			} else {
-				if ($rowEmpleado->desde > $hasta) {
+				if ($rowTurno->desde > $hasta) {
 					continue;
 				} else {
-					$desdeAux = (($desde > $rowEmpleado->desde) ? $desde : $rowEmpleado->desde);
+					$desdeAux = (($desde > $rowTurno->desde) ? $desde : $rowTurno->desde);
 				}
 			}
 			
-			if (is_null($rowEmpleado->hasta)) {
+			if (is_null($rowTurno->hasta)) {
 				$hastaAux = $hasta;
 			} else {
-				if ($rowEmpleado->hasta < $desde) {
+				if ($rowTurno->hasta < $desde) {
 					continue;
 				} else {
-					$hastaAux = (($hasta < $rowEmpleado->hasta) ? $hasta : $rowEmpleado->hasta);
+					$hastaAux = (($hasta < $rowTurno->hasta) ? $hasta : $rowTurno->hasta);
 				}
 			}
+			
+			
+			
 			
 			
 			$desdeAux = new DateTime($desdeAux);
@@ -139,27 +167,15 @@ case "permisos" : {
 
 
 			
-			$sql = "SELECT * FROM tolerancia WHERE id_tolerancia=" . $rowEmpleado->id_tolerancia;
-			$rsTolerancia = $mysqli->query($sql);
-			$rowTolerancia = $rsTolerancia->fetch_object();
-			
-			$rowTolerancia->control_entrada = (bool) $rowTolerancia->control_entrada;
-			$rowTolerancia->control_salida = (bool) $rowTolerancia->control_salida;
-			$rowTolerancia->total_minutos = (int) $rowTolerancia->total_minutos;
-			$rowTolerancia->limite_tardanzas = (int) $rowTolerancia->limite_tardanzas;
+
 			
 			
 			?>
 			<tr><td>&nbsp;</td></tr>
 			<tr><td>&nbsp;</td></tr>
 			<tr><td>&nbsp;</td></tr>
+			<tr><td>Turno</td><td colspan="6"><u><?php echo $rowTurno->descrip . " (" . $rowTurno->entrada . " - " . $rowTurno->salida . ") (" . ((! is_null($rowTurno->desde) ? "desde " . $rowTurno->desde : "")) . ((! is_null($rowTurno->hasta) ? " hasta " . $rowTurno->hasta : "")) . ")"; ?></u></td></tr>
 			<tr><td>&nbsp;</td></tr>
-			<tr><td>&nbsp;</td></tr>
-			<tr><td colspan="7"><hr/></td></tr>
-			<tr><td>&nbsp;</td></tr>
-			<tr><td>Empleado</td><td><?php echo $rowEmpleado->name; ?></td></tr>
-			<tr><td>Turno</td><td><?php echo $rowTurno->descrip . " (" . $rowTurno->entrada . " - " . $rowTurno->salida . ")"; ?></td></tr>
-			<tr><td>Tolerancia</td><td><?php echo $rowTolerancia->descrip; ?></td></tr>
 			<?php
 
 			
@@ -182,7 +198,7 @@ case "permisos" : {
 				if ($mes != $ultimo_mes || $ano != $ultimo_ano) {
 					if (! is_null($ultimo_mes) && $imprimir_pie) {
 						?>
-						<tr><td colspan="5">&nbsp;</td><td>Total</td><td><?php echo $total_minutos; ?></td></tr>
+						<tr><td colspan="5">&nbsp;</td><td>Minutos Pendientes</td><td><?php echo $total_minutos; ?></td></tr>
 						</tbody>
 						</table>
 						</td></tr>

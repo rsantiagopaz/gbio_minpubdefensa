@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+date_default_timezone_set("America/Argentina/Buenos_Aires");
+
 require("Conexion.php");
 require("DateTimeEnhanced.php");
 
@@ -24,11 +26,6 @@ case "permisos" : {
 	</head>
 	<body>
 	<table border="0" cellpadding="0" cellspacing="0" width="800" align="center">
-	<tr><td>&nbsp;</td></tr>
-	<tr><td>&nbsp;</td></tr>
-	<tr><td align="center" colspan="6"><big><b>Ministerio Publico Fiscal</b></big></td></tr>
-	<tr><td>&nbsp;</td></tr>
-	<tr><td align="center" colspan="6"><big><b>Listado Tiempo de Permiso, <?php echo date("Y-m-d H:i:s"); ?></b></big></td></tr>
 	<tr><td>&nbsp;</td></tr>
 	<tr><td align="center" colspan="6"><big><?php
 		if (! is_null($_REQUEST['desde']) && ! is_null($_REQUEST['hasta'])) {
@@ -72,7 +69,7 @@ case "permisos" : {
 	
 	
 
-	$sql = "SELECT * FROM turno";
+	$sql = "SELECT * FROM turno ORDER BY descrip";
 	$rsTurno = $mysqli->query($sql);
 	while ($rowTurno = $rsTurno->fetch_object()) {
 		
@@ -97,7 +94,7 @@ case "permisos" : {
 			$sql.= " AND id_empleado=" . $_REQUEST['id_empleado'];
 		}
 		
-		$sql.= " ORDER BY name";
+		$sql.= " ORDER BY apellido, nombre, name";
 		
 		$rsEmpleado = $mysqli->query($sql);
 		
@@ -106,41 +103,29 @@ case "permisos" : {
 			if (empty($rowEmpleado->id_tolerancia)) continue;
 			
 			
-			$sql = "SELECT * FROM tolerancia WHERE id_tolerancia=" . $rowEmpleado->id_tolerancia;
-			$rsTolerancia = $mysqli->query($sql);
-			$rowTolerancia = $rsTolerancia->fetch_object();
-
-			$rowTolerancia->e_fichada = (int) $rowTolerancia->e_fichada;
-			$rowTolerancia->e_tolerable = (int) $rowTolerancia->e_tolerable;
-			$rowTolerancia->e_tardanza = (int) $rowTolerancia->e_tardanza;
-			$rowTolerancia->e_30minutos = (int) $rowTolerancia->e_30minutos;
-			$rowTolerancia->e_60minutos = (int) $rowTolerancia->e_60minutos;
-			
-			$rowTolerancia->control_entrada = (bool) $rowTolerancia->control_entrada;
-			$rowTolerancia->control_salida = (bool) $rowTolerancia->control_salida;
-			$rowTolerancia->total_minutos = (int) $rowTolerancia->total_minutos;
-			$rowTolerancia->limite_tardanzas = (int) $rowTolerancia->limite_tardanzas;
-			
-			
-			
-			
-			if (! is_null($rowEmpleado->desde)) {
-				if (is_null($desde)) $desdeAux = $rowEmpleado->desde; else $desdeAux = (($desde > $rowEmpleado->desde) ? $desde : $rowEmpleado->desde);
-			} else {
+			if (is_null($rowEmpleado->desde)) {
 				$desdeAux = $desde;
+			} else {
+				if ($rowEmpleado->desde > $hasta) {
+					continue;
+				} else {
+					$desdeAux = (($desde > $rowEmpleado->desde) ? $desde : $rowEmpleado->desde);
+				}
 			}
 			
-			if (! is_null($rowEmpleado->hasta)) {
-				if (is_null($hasta)) $hastaAux = $rowEmpleado->hasta; else $hastaAux = (($hasta < $rowEmpleado->hasta) ? $hasta : $rowEmpleado->hasta);
-			} else {
+			if (is_null($rowEmpleado->hasta)) {
 				$hastaAux = $hasta;
+			} else {
+				if ($rowEmpleado->hasta < $desde) {
+					continue;
+				} else {
+					$hastaAux = (($hasta < $rowEmpleado->hasta) ? $hasta : $rowEmpleado->hasta);
+				}
 			}
+			
 			
 			$desdeAux = new DateTime($desdeAux);
 			$hastaAux = new DateTime($hastaAux);
-			
-			
-			
 			
 			$ultimo_mes = null;
 			$ultimo_ano = null;
@@ -150,6 +135,18 @@ case "permisos" : {
 			
 			$imprimir_encabezado = null;
 			$imprimir_pie = null;
+			
+
+
+			
+			$sql = "SELECT * FROM tolerancia WHERE id_tolerancia=" . $rowEmpleado->id_tolerancia;
+			$rsTolerancia = $mysqli->query($sql);
+			$rowTolerancia = $rsTolerancia->fetch_object();
+			
+			$rowTolerancia->control_entrada = (bool) $rowTolerancia->control_entrada;
+			$rowTolerancia->control_salida = (bool) $rowTolerancia->control_salida;
+			$rowTolerancia->total_minutos = (int) $rowTolerancia->total_minutos;
+			$rowTolerancia->limite_tardanzas = (int) $rowTolerancia->limite_tardanzas;
 			
 			
 			?>
@@ -168,6 +165,16 @@ case "permisos" : {
 			
 			
 			do {
+				$sql = "SELECT * FROM vista_feriado WHERE feriados_fecha = '" . $desdeAux->format("Y-m-d") . "'";
+				$rsFeriado = $mysqli->query($sql);
+				if ($rsFeriado->num_rows > 0) {
+					$desdeAux->add(new DateInterval("P1D"));
+					continue;
+				}
+				
+				
+				$falta_entrada = false;
+				$falta_salida = false;
 				
 				$mes = $desdeAux->format("m");
 				$ano = $desdeAux->format("Y");
@@ -175,7 +182,7 @@ case "permisos" : {
 				if ($mes != $ultimo_mes || $ano != $ultimo_ano) {
 					if (! is_null($ultimo_mes) && $imprimir_pie) {
 						?>
-						<tr><td colspan="4">&nbsp;</td><td>Total</td><td><?php echo $total_minutos; ?></td></tr>
+						<tr><td colspan="5">&nbsp;</td><td>Total</td><td><?php echo $total_minutos; ?></td></tr>
 						</tbody>
 						</table>
 						</td></tr>
@@ -225,11 +232,20 @@ case "permisos" : {
 					$rsPermiso = $mysqli->query($sql);
 					
 					if ($rsLicencia->num_rows == 0 && $rsPermiso->num_rows == 0) {
+						
+						$fecha_hora_entrada_desde = new DateTimeEnhanced($desdeAux->format("Y-m-d") . " " . $rowTurno->entrada);
+						$fecha_hora_entrada_desde->sub(new DateInterval("PT" . ($rowTolerancia->e_fichada) . "M"));
+						
+						$fecha_hora_entrada_hasta = new DateTimeEnhanced($desdeAux->format("Y-m-d") . " " . $rowTurno->entrada);
+						$fecha_hora_entrada_hasta->add(new DateInterval("PT" . ($rowTolerancia->e_tolerable) . "M"));
+						$fecha_hora_entrada_hasta->add(new DateInterval("PT" . ($rowTolerancia->e_tardanza) . "M"));
+						$fecha_hora_entrada_hasta->add(new DateInterval("PT" . ($rowTolerancia->e_30minutos) . "M"));
+						$fecha_hora_entrada_hasta->add(new DateInterval("PT" . ($rowTolerancia->e_60minutos) . "M"));
 					
 						$sql = "SELECT fichaje.*";
 						$sql.= " FROM fichaje INNER JOIN empleado_reloj USING(id_empleado_reloj)";
 						$sql.= " WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND inout_mode = 0";
-						$sql.= " AND DATE(fecha_hora) = '" . $desdeAux->format("Y-m-d") . "'";
+						$sql.= " AND fecha_hora BETWEEN '" . $fecha_hora_entrada_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_entrada_hasta->format("Y-m-d H:i:s") . "'";
 						$sql.= " ORDER BY fecha_hora DESC";
 						
 						$rsEntrada = $mysqli->query($sql);
@@ -259,7 +275,7 @@ case "permisos" : {
 										imprimir_encabezado();
 										
 										?>
-										<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>Tardanza</td></tr>
+										<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td>Ent.tardanza</td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>Tardanza</td></tr>
 										<?php
 									} else {
 										$total_minutos = $total_minutos - 30;
@@ -267,7 +283,7 @@ case "permisos" : {
 										imprimir_encabezado();
 										
 										?>
-										<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>Tardanza 30</td></tr>
+										<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td>Ent.tardanza</td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>Tardanza -30</td></tr>
 										<?php
 									}
 								} else {
@@ -280,7 +296,7 @@ case "permisos" : {
 										imprimir_encabezado();
 										
 										?>
-										<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>30</td></tr>
+										<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td>30 minutos</td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>-30</td></tr>
 										<?php
 									} else {
 									
@@ -292,7 +308,7 @@ case "permisos" : {
 											imprimir_encabezado();
 											
 											?>
-											<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>60</td></tr>
+											<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td>60 minutos</td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>-60</td></tr>
 											<?php
 										} else {
 										
@@ -301,13 +317,15 @@ case "permisos" : {
 												imprimir_encabezado();
 												
 												?>
-												<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td align="center"> -------- </td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>Sanción</td></tr>
+												<tr><td>Entrada</td><td><?php echo $entrada->format("Y-m-d"); ?></td><td align="center"> -------- </td><td align="center"> -------- </td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $entrada->format("H:i:s"); ?></td><td>Inconsistencia</td></tr>
 												<?php
 											}
 										}
 									}
 								}
 							}
+						} else if ($rowTolerancia->control_entrada && $rsEntrada->num_rows == 0) {
+							$falta_entrada = true;
 						}
 					}
 					
@@ -319,11 +337,18 @@ case "permisos" : {
 					$rsPermiso = $mysqli->query($sql);
 					
 					if ($rsLicencia->num_rows == 0 && $rsPermiso->num_rows == 0) {
+						
+						$fecha_hora_salida_desde = new DateTimeEnhanced($desdeAux->format("Y-m-d") . " " . $rowTurno->salida);
+						$fecha_hora_salida_desde->sub(new DateInterval("PT" . ($rowTolerancia->s_tolerable) . "M"));
+						$fecha_hora_salida_desde->sub(new DateInterval("PT" . ($rowTolerancia->s_abandono) . "M"));
+						
+						$fecha_hora_salida_hasta = new DateTimeEnhanced($desdeAux->format("Y-m-d") . " " . $rowTurno->salida);
+						$fecha_hora_salida_hasta->add(new DateInterval("PT" . ($rowTolerancia->s_fichada) . "M"));
 					
 						$sql = "SELECT fichaje.*";
 						$sql.= " FROM fichaje INNER JOIN empleado_reloj USING(id_empleado_reloj)";
 						$sql.= " WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND inout_mode = 1";
-						$sql.= " AND DATE(fecha_hora) = '" . $desdeAux->format("Y-m-d") . "'";
+						$sql.= " AND fecha_hora BETWEEN '" . $fecha_hora_salida_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_salida_hasta->format("Y-m-d H:i:s") . "'";
 						$sql.= " ORDER BY fecha_hora";
 						
 						$rsSalida = $mysqli->query($sql);
@@ -353,7 +378,7 @@ case "permisos" : {
 									imprimir_encabezado();
 									
 									?>
-									<tr><td>Salida</td><td><?php echo $salida->format("Y-m-d"); ?></td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $salida->format("H:i:s"); ?></td><td>Abandono <?php echo $minutos; ?></td></tr>
+									<tr><td>Salida</td><td><?php echo $salida->format("Y-m-d"); ?></td><td>Salida Temprana</td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td><?php echo $hora_aux2->format("H:i:s"); ?></td><td><?php echo $salida->format("H:i:s"); ?></td><td>Salida Temprana -<?php echo $minutos; ?></td></tr>
 									<?php
 								} else {
 									$hora_aux2 = $hora_aux1;
@@ -365,28 +390,46 @@ case "permisos" : {
 										imprimir_encabezado();
 										
 										?>
-										<tr><td>Salida</td><td><?php echo $salida->format("Y-m-d"); ?></td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td align="center"> -------- </td><td><?php echo $salida->format("H:i:s"); ?></td><td>Sanción</td></tr>
+										<tr><td>Salida</td><td><?php echo $salida->format("Y-m-d"); ?></td><td align="center"> -------- </td><td><?php echo $hora_aux1->format("H:i:s"); ?></td><td align="center"> -------- </td><td><?php echo $salida->format("H:i:s"); ?></td><td>Inconcis</td></tr>
 										<?php
 									}
 								}
 							}
 						} else if ($rowTolerancia->control_salida && $rsSalida->num_rows == 0) {
-							imprimir_encabezado();
-							
-							?>
-							<tr><td>Salida</td><td><?php echo $salida->format("Y-m-d"); ?></td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td>Sanción</td></tr>
-							<?php
+							$falta_salida = true;
 						}
 					}
 				}
 				
+				if ($falta_entrada && $falta_salida) {
+					
+					imprimir_encabezado();
+					
+					?>
+					<tr><td>Ent/Sal</td><td><?php echo $desdeAux->format("Y-m-d"); ?></td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td>Inconsistencia</td></tr>
+					<?php
+				} else if ($falta_entrada) {
+					
+					imprimir_encabezado();
+					
+					?>
+					<tr><td>Entrada</td><td><?php echo $desdeAux->format("Y-m-d"); ?></td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td>Inconsistencia</td></tr>
+					<?php
+				} else if ($falta_salida) {
+					
+					imprimir_encabezado();
+					
+					?>
+					<tr><td>Salida</td><td><?php echo $desdeAux->format("Y-m-d"); ?></td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td align="center"> -------- </td><td>Inconsistencia</td></tr>
+					<?php					
+				}
 				
-				$desdeAux = $desdeAux->add(new DateInterval("P1D"));
+				$desdeAux->add(new DateInterval("P1D"));
 			} while ($desdeAux <= $hastaAux);
 			
 			if (! is_null($total_minutos) && $imprimir_pie) {
 				?>
-				<tr><td colspan="4">&nbsp;</td><td>Total</td><td><?php echo $total_minutos; ?></td></tr>
+				<tr><td colspan="5">&nbsp;</td><td>Minutos Pendientes</td><td><?php echo $total_minutos; ?></td></tr>
 				</tbody>
 				</table>
 				</td></tr>
@@ -436,7 +479,7 @@ break;
 		<tr><td colspan="20">
 		<table border="1" rules="all" cellpadding="5" cellspacing="0" width="100%" align="center">
 		<thead>
-		<tr><th>modo</th><th>fecha</th><th colspan="2">intervalo</th><th>fichaje</th><th>descripcion</th></tr>
+		<tr><th>modo</th><th>fecha</th><th colspan="3">intervalo</th><th>fichaje</th><th>descripcion</th></tr>
 		</thead>
 		<tbody>
 		<?php
