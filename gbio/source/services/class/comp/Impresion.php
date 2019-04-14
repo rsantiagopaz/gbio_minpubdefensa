@@ -262,7 +262,7 @@ case "permisos" : {
 						$sql.= " FROM fichaje INNER JOIN empleado_reloj USING(id_empleado_reloj)";
 						$sql.= " WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND inout_mode = 0";
 						$sql.= " AND fecha_hora BETWEEN '" . $fecha_hora_entrada_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_entrada_hasta->format("Y-m-d H:i:s") . "'";
-						$sql.= " ORDER BY fecha_hora DESC";
+						$sql.= " ORDER BY fecha_hora";
 						
 						$rsEntrada = $mysqli->query($sql);
 					
@@ -365,7 +365,7 @@ case "permisos" : {
 						$sql.= " FROM fichaje INNER JOIN empleado_reloj USING(id_empleado_reloj)";
 						$sql.= " WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND inout_mode = 1";
 						$sql.= " AND fecha_hora BETWEEN '" . $fecha_hora_salida_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_salida_hasta->format("Y-m-d H:i:s") . "'";
-						$sql.= " ORDER BY fecha_hora";
+						$sql.= " ORDER BY fecha_hora DESC";
 						
 						$rsSalida = $mysqli->query($sql);
 						
