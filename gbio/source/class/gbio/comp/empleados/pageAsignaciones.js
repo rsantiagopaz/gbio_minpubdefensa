@@ -191,7 +191,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 				for (var x in rowData.turnos) {
 					bandera = true;
 					for (var y in data1) {
-						if (data1[y].id_turno == rowData.turnos[x].id_turno && data1[y].desde == rowData.turnos[x].desde && data1[y].hasta == rowData.turnos[x].hasta) {
+						if (data1[y].id_turno == rowData.turnos[x].id_turno && formatDate.format(data1[y].desde) == formatDate.format(rowData.turnos[x].desde) && formatDate.format(data1[y].hasta) == formatDate.format(rowData.turnos[x].hasta)) {
 							bandera = false;
 							data1[y].id_empleado_turno.push(rowData.turnos[x].id_empleado_turno);
 						}
@@ -207,7 +207,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 				for (var x in rowData.permisos) {
 					bandera = true;
 					for (var y in data2) {
-						if (data2[y].id_permiso == rowData.permisos[x].id_permiso && data2[y].id_turno == rowData.permisos[x].id_turno && data2[y].desde == rowData.permisos[x].desde && data2[y].hasta == rowData.permisos[x].hasta && data2[y].fecha == rowData.permisos[x].fecha) {
+						if (data2[y].id_permiso == rowData.permisos[x].id_permiso && data2[y].id_turno == rowData.permisos[x].id_turno && formatDate.format(data2[y].desde) == formatDate.format(rowData.permisos[x].desde) && formatDate.format(data2[y].hasta) == formatDate.format(rowData.permisos[x].hasta) && formatDate.format(data2[y].fecha) == formatDate.format(rowData.permisos[x].fecha)) {
 							bandera = false;
 							data2[y].id_empleado_permiso.push(rowData.permisos[x].id_empleado_permiso);
 						}
@@ -242,11 +242,14 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 			tableModelPermisos.setDataAsMapArray(data2, true);
 			tableModelRelojes.setDataAsMapArray(data3, true);
 			
+			var data1aux = {};
+			for (var x in data1) {
+				if (data1aux[data1[x].id_turno] == null) data1aux[data1[x].id_turno] = data1[x];
+			}
+			
 			slbTurno2.removeAll();
-			//alert(qx.lang.Json.stringify(data1, null, 2));
-			for (var y in data1) {
-				aux = new qx.ui.form.ListItem(data1[y].turno + " (" + formatDate.format(data1[y].desde) + ((data1[y].hasta == null) ? "" : " - " + formatDate.format(data1[y].hasta)) + ")" , null, data1[y].id_empleado_turno);
-				slbTurno2.add(aux);
+			for (var x in data1aux) {
+				slbTurno2.add(new qx.ui.form.ListItem(data1aux[x].turno, null, data1aux[x].id_turno));
 			}
 		}
 	});
@@ -511,7 +514,7 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 	var slbTurno2 = new qx.ui.form.SelectBox();
 	slbTurno2.setRequired(true);
 	slbTurno2.setWidth(250);
-	form2.add(slbTurno2, "Turno", null, "id_empleado_turno");
+	form2.add(slbTurno2, "Turno", null, "id_turno");
 	
 	
 	var txtFecha = new qx.ui.form.DateField();
@@ -538,6 +541,12 @@ qx.Class.define("gbio.comp.empleados.pageAsignaciones",
 			
 			if (application.usuario.tipo == "A" || resultado.hora < row.hora_asignacion_limite){
 				var p = qx.util.Serializer.toNativeObject(controllerFormPermisos.getModel());
+				
+				p.id_empleado = [];
+				selectionModelEmpleados.iterateSelection(function(index) {
+					var rowData = tableModelEmpleados.getRowData(index);
+					p.id_empleado.push(rowData.id_empleado);
+				});
 				
 				//alert(qx.lang.Json.stringify(p, null, 2));
 				

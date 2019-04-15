@@ -107,36 +107,55 @@ class class_Empleados extends class_Base
 	
 	$resultado->permiso = $rowPermiso;
 	
-	foreach ($p->id_empleado_turno as $id_empleado_turno) {
-		$sql = "SELECT id_empleado_permiso FROM empleado_permiso WHERE id_empleado_turno=" . $id_empleado_turno . " AND id_permiso=" . $p->id_permiso . " AND fecha='" . substr($p->fecha, 0, 10) . "'";
-		$rs = $this->sql_query($sql);
-		if ($rs->num_rows == 0) {
-			$sql = "SELECT empleado.id_empleado, CONCAT(empleado.apellido, ', ', empleado.nombre) AS apenom FROM empleado_turno INNER JOIN empleado USING(id_empleado) WHERE id_empleado_turno=" . $id_empleado_turno;
-			$rsEmpleado = $this->sql_query($sql);
-			$rowEmpleado = $rsEmpleado->fetch_object();
+	
+	foreach ($p->id_empleado as $id_empleado) {
+		$sql = "SELECT * FROM empleado_turno WHERE id_empleado=" . $id_empleado . " AND id_turno=" . $p->id_turno;
+		$rsEmpleado_turno = $this->sql_query($sql);
+		while ($rowEmpleado_turno = $rsEmpleado_turno->fetch_object()) {
+			$bandera = false;
 			
-			
-			$sql = "INSERT empleado_permiso SET id_empleado_turno=" . $id_empleado_turno . ", id_permiso=" . $p->id_permiso . ", fecha='" . $p->fecha . "'";
-			$this->sql_query($sql);
-			$insert_id = $this->mysqli->insert_id;
-			
-			$json = new stdClass;
-			$json->permiso = $rowPermiso;
-			$json->empleado = $rowEmpleado;
-			
-			$this->auditoria($sql, "Asignar permiso", "asignar_permiso", $insert_id, $json);
- 			
-
-			
-			$sql = "SELECT id_empleado_permiso FROM empleado_permiso INNER JOIN empleado_turno USING(id_empleado_turno) WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND id_permiso=" . $p->id_permiso . " AND YEAR(empleado_permiso.fecha)=" . substr($p->fecha, 0, 4);
-			$rs = $this->sql_query($sql);
-
-			if ($rs->num_rows == $rowPermiso->primer_aviso) {
-				$resultado->primer_aviso[] = $rowEmpleado;
-			} else if ($rs->num_rows == $rowPermiso->segundo_aviso) {
-				$resultado->segundo_aviso[] = $rowEmpleado;
+			if (isset($rowEmpleado_turno->desde) && isset($rowEmpleado_turno->hasta)) {
+				if ($p->fecha >= $rowEmpleado_turno->desde && $p->fecha <= $rowEmpleado_turno->hasta) $bandera = true;
+			} else if (isset($rowEmpleado_turno->desde)) {
+				if ($p->fecha >= $rowEmpleado_turno->desde) $bandera = true;
+			} else if (isset($rowEmpleado_turno->hasta)) {
+				if ($p->fecha <= $rowEmpleado_turno->hasta) $bandera = true;
 			}
-		}		
+
+			if ($bandera) {
+				$id_empleado_turno = $rowEmpleado_turno->id_empleado_turno;
+				
+				$sql = "SELECT id_empleado_permiso FROM empleado_permiso WHERE id_empleado_turno=" . $id_empleado_turno . " AND id_permiso=" . $p->id_permiso . " AND fecha='" . $p->fecha . "'";
+				$rs = $this->sql_query($sql);
+				if ($rs->num_rows == 0) {
+					$sql = "SELECT empleado.id_empleado, CONCAT(empleado.apellido, ', ', empleado.nombre) AS apenom FROM empleado_turno INNER JOIN empleado USING(id_empleado) WHERE id_empleado_turno=" . $id_empleado_turno;
+					$rsEmpleado = $this->sql_query($sql);
+					$rowEmpleado = $rsEmpleado->fetch_object();
+					
+					
+					$sql = "INSERT empleado_permiso SET id_empleado_turno=" . $id_empleado_turno . ", id_permiso=" . $p->id_permiso . ", fecha='" . $p->fecha . "'";
+					$this->sql_query($sql);
+					$insert_id = $this->mysqli->insert_id;
+					
+					$json = new stdClass;
+					$json->permiso = $rowPermiso;
+					$json->empleado = $rowEmpleado;
+					
+					$this->auditoria($sql, "Asignar permiso", "asignar_permiso", $insert_id, $json);
+		 			
+		
+					
+					$sql = "SELECT id_empleado_permiso FROM empleado_permiso INNER JOIN empleado_turno USING(id_empleado_turno) WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND id_permiso=" . $p->id_permiso . " AND YEAR(empleado_permiso.fecha)=" . substr($p->fecha, 0, 4);
+					$rs = $this->sql_query($sql);
+		
+					if ($rs->num_rows == $rowPermiso->primer_aviso) {
+						$resultado->primer_aviso[] = $rowEmpleado;
+					} else if ($rs->num_rows == $rowPermiso->segundo_aviso) {
+						$resultado->segundo_aviso[] = $rowEmpleado;
+					}
+				}
+			}
+		}
 	}
 	
 	if (count($resultado->primer_aviso) > 0 || count($resultado->segundo_aviso) > 0) return $resultado;
