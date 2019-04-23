@@ -54,7 +54,12 @@ class class_Relojes extends class_Base
 		
 		fclose($fp);
 		
-		exec('"' . $path . 'UserInfoBatch.exe' . '"' . ' ' . $rowReloj->host . ' ' . 'userinfobatch.dat', $output);
+//		exec('"' . $path . 'wine UserInfoBatch.exe' . '"' . ' ' . $rowReloj->host . ' ' . 'userinfobatch.dat', $output);
+		$run="wine UserInfoBatch.exe " . $rowReloj->host . " userinfobatch.dat";
+		exec($run, $output);
+//		$run="sudo /var/www/html/gbio/services/reloj.sh";
+//		exec($run . ' usuariosEnviar ' . $rowReloj->host . ' userinfobatch.dat ', $output);
+
   	}
   	
   	return $resultado;
@@ -73,7 +78,11 @@ class class_Relojes extends class_Base
 		$output = null;
 		$fp = fopen("userinfo.dat", "w");
 		fclose($fp);
-		exec('"' . $path . 'UserInfo.exe' . '"' . ' ' . $rowReloj->host, $output);
+		$run="wine UserInfo.exe " . $rowReloj->host;
+		exec($run, $output);
+		//exec('"' . $path . 'wine UserInfo.exe' . '"' . ' ' . $rowReloj->host, $output);
+		//$run="sudo /var/www/html/gbio/services/reloj.sh";
+		//exec($run . ' usuariosTraer ' . $rowReloj->host, $output);
 		$fp = fopen("userinfo.dat", "r");
 		
 	    while ($linea = stream_get_line($fp, 50000, "\r\n")) {
@@ -157,7 +166,7 @@ class class_Relojes extends class_Base
   
   
   public function method_recuperar_fichajes($params, $error) {
-  	$p = $params[0];
+  	@$p = $params[0];
   	
   	set_time_limit(0);
   	$resultado = array();
@@ -167,7 +176,11 @@ class class_Relojes extends class_Base
 		$output = null;
 		$fp = fopen("attlogs.dat", "w");
 		fclose($fp);
-		exec('"' . $path . 'AttLogs.exe' . '"' . ' ' . $row->host, $output);
+		$run="wine AttLogs.exe " . $row->host;
+		exec($run, $output);
+		//exec('"' . $path . 'wine AttLogs.exe' . '"' . ' ' . $row->host, $output);
+		//$run="sudo /var/www/html/gbio/services/reloj.sh";
+		//exec($run . ' fichajesTraer ' . $rowReloj->host, $output);
 		$fp = fopen("attlogs.dat", "r");
 		
 	    while ($linea = stream_get_line($fp, 20000, "\r\n")) {
