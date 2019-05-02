@@ -27,6 +27,12 @@ case "permisos" : {
 	<body>
 	<table border="0" cellpadding="0" cellspacing="0" width="800" align="center">
 	<tr><td>&nbsp;</td></tr>
+	<tr><td align="center" colspan="6"><big><b>Ministerio Público de la Defensa </b></big></td></tr>
+	<tr><td>&nbsp;</td></tr>
+	<tr><td align="center" colspan="6"><big><b>LISTADO TIEMPO DE PERMISO</b></big></td></tr>
+	<tr><td align="center" colspan="6"><big><?php echo date("Y-m-d H:i:s"); ?></big></td></tr>
+	<tr><td>&nbsp;</td></tr>
+	<tr><td>&nbsp;</td></tr>
 	<tr><td align="center" colspan="6"><big><?php
 		if (! is_null($_REQUEST['desde']) && ! is_null($_REQUEST['hasta'])) {
 			$desde = $_REQUEST['desde'];
@@ -70,7 +76,7 @@ case "permisos" : {
 	
 	$sql = "SELECT *";
 	$sql.= " FROM empleado";
-	$sql.= " WHERE TRUE";
+	$sql.= " WHERE empleado.enabled = 1";
 	
 	if (isset($_REQUEST['id_empleado'])) {
 		$sql.= " AND id_empleado=" . $_REQUEST['id_empleado'];
@@ -261,7 +267,7 @@ case "permisos" : {
 						$sql = "SELECT fichaje.*";
 						$sql.= " FROM fichaje INNER JOIN empleado_reloj USING(id_empleado_reloj)";
 						$sql.= " WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND inout_mode = 0";
-						$sql.= " AND fecha_hora BETWEEN '" . $fecha_hora_entrada_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_entrada_hasta->format("Y-m-d H:i:s") . "'";
+						$sql.= " AND CONCAT(DATE(fecha_hora), ' ', TIME_FORMAT(CONCAT(HOUR(fecha_hora), ':', MINUTE(fecha_hora), ':00'), '%H:%i:%S')) BETWEEN '" . $fecha_hora_entrada_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_entrada_hasta->format("Y-m-d H:i:s") . "'";
 						$sql.= " ORDER BY fecha_hora";
 						
 						$rsEntrada = $mysqli->query($sql);
@@ -364,7 +370,7 @@ case "permisos" : {
 						$sql = "SELECT fichaje.*";
 						$sql.= " FROM fichaje INNER JOIN empleado_reloj USING(id_empleado_reloj)";
 						$sql.= " WHERE id_empleado=" . $rowEmpleado->id_empleado . " AND inout_mode = 1";
-						$sql.= " AND fecha_hora BETWEEN '" . $fecha_hora_salida_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_salida_hasta->format("Y-m-d H:i:s") . "'";
+						$sql.= " AND CONCAT(DATE(fecha_hora), ' ', TIME_FORMAT(CONCAT(HOUR(fecha_hora), ':', MINUTE(fecha_hora), ':00'), '%H:%i:%S')) BETWEEN '" . $fecha_hora_salida_desde->format("Y-m-d H:i:s") . "' AND '" . $fecha_hora_salida_hasta->format("Y-m-d H:i:s") . "'";
 						$sql.= " ORDER BY fecha_hora DESC";
 						
 						$rsSalida = $mysqli->query($sql);

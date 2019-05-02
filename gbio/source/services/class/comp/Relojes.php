@@ -28,7 +28,8 @@ class class_Relojes extends class_Base
 		while ($rowEmpleado = $rsEmpleado->fetch_object()) {
 			fwrite($fp, '<row');
 			fwrite($fp, ' enroll_number="' . $rowEmpleado->enroll_number . '"');
-			fwrite($fp, ' name="' . $rowEmpleado->name . '"');
+			//fwrite($fp, ' name="' . $rowEmpleado->name . '"');
+			fwrite($fp, ' name="' . substr($rowEmpleado->name, 0, 23) . '"');
 			fwrite($fp, ' password="' . $rowEmpleado->password . '"');
 			fwrite($fp, ' privilege="' . $rowEmpleado->privilege . '"');
 			fwrite($fp, ' enabled="' . (($rowEmpleado->enabled=="1") ? "True" : "False") . '"');
